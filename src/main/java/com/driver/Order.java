@@ -3,7 +3,7 @@ package com.driver;
 public class Order {
 
     private String id;
-    private int deliveryTime;
+    private final int deliveryTime;
 
     public Order(String id, String deliveryTime) {
 

@@ -22,7 +22,10 @@ public class OrderRepository {
 
     public void saveOrder(Order order){
         // your code here
-        orderMap.put(order.getId(), order);
+        String key = order.getId();
+        orderMap.put(key , order);
+        String put = orderToPartnerMap.put(order.getId());
+
     }
 
     public void savePartner(String partnerId){
@@ -52,7 +55,8 @@ public class OrderRepository {
 
     public Order findOrderById(String orderId){
         // your code here
-        return orderMap.get(orderId);
+        Order order = orderMap.get(orderId);
+        return order;
     }
 
     public DeliveryPartner findPartnerById(String partnerId){
@@ -61,10 +65,8 @@ public class OrderRepository {
     }
 
     public Integer findOrderCountByPartnerId(String partnerId){
-        // your code here
-        int countOfOrder;
-        countOfOrder = partnerMap.get(partnerId).getNumberOfOrders();
-        return countOfOrder;
+        // your code her
+        return partnerToOrderMap.get(partnerId).size();
 
     }
 
@@ -78,33 +80,38 @@ public class OrderRepository {
     public List<String> findAllOrders(){
         // your code here
         // return list of all orders
-        return new ArrayList<>(orderMap.keySet());
+        List<String> list = new ArrayList<>();
+        for (String orderId: partnerMap.keySet()){
+            list.add(orderId);
+        }
+        return list;
     }
 
     public void deletePartner(String partnerId){
         // your code here
         // delete partner by ID
-        HashSet<String> orderList = partnerToOrderMap.get(partnerId);
-
-        for(String orderID : orderList){
-            orderToPartnerMap.remove(orderID);
+        if(!partnerToOrderMap.isEmpty()){
+            orderToPartnerMap.putAll((Map<? extends String, ? extends String>) partnerToOrderMap.get(partnerId));
         }
-
         partnerToOrderMap.remove(partnerId);
-
         partnerMap.remove(partnerId);
     }
 
     public void deleteOrder(String orderId){
         // your code here
         // delete order by ID
-        orderMap.remove(orderId);
-        if(orderToPartnerMap.containsKey(orderId)){
-            String partnerId = orderToPartnerMap.get(orderId);
-
-            orderToPartnerMap.remove(orderId);
-            partnerToOrderMap.get(partnerId).remove(orderId);
-            partnerMap.get(partnerId).setNumberOfOrders(partnerToOrderMap.get(partnerId).size());
+        if(partnerMap.containsKey(orderId)){
+            if(orderToPartnerMap.containsKey(orderId)){
+                orderToPartnerMap.remove(orderId);
+            }
+            else{
+                for(String partnerId: partnerToOrderMap.keySet()){
+                    HashSet<String> list = partnerToOrderMap.get(partnerId);
+                    if(list.contains(orderId)){
+                        list.remove(orderId);
+                    }
+                }
+            }
         }
     }
 
